@@ -58,8 +58,7 @@ export default class PloygonObject {
 	 */
 	private InitSprite(): Sprite {
 		const sprite = new Sprite();
-
-		//sprite.anchor.set(0.5);
+		
 		sprite.interactive = true;
 
 		sprite
