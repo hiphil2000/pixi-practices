@@ -1,8 +1,9 @@
 import { throws } from "assert/strict";
-import { Graphics, InteractionData, InteractionEvent, IPointData, Point, Renderer, Sprite } from "pixi.js";
+import { Graphics, InteractionData, InteractionEvent, IPointData, Point, Polygon, Renderer, Sprite } from "pixi.js";
 
 export interface IPolygonObjectConfig {
 	points: Array<number>;
+	stroke?: number;
 	backgroundColor?: number;
 	x?: number;
 	y?: number;
@@ -14,6 +15,9 @@ export const DEFAULT_CONFIGS: IPolygonObjectConfig = {
 	x: 0,
 	y: 0
 }
+
+// TODO: vector 그리는 것으로 변경
+// ref: https://codepen.io/hz/pen/vYNMxBj
 
 export default class PloygonObject {
 	public readonly id: string;	// ID
@@ -58,7 +62,7 @@ export default class PloygonObject {
 	 */
 	private InitSprite(): Sprite {
 		const sprite = new Sprite();
-		
+
 		sprite.interactive = true;
 
 		sprite
@@ -66,6 +70,8 @@ export default class PloygonObject {
 			.on("mouseup", e => this.HandleDragEnd())
 			.on("mouseupoutside", e => this.HandleDragEnd())
 			.on("mousemove", e => this.HandleDragging())
+
+		sprite.hitArea = new Polygon(this.configs.points);
 
 		return sprite;
 	}

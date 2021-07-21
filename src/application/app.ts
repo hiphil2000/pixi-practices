@@ -6,6 +6,7 @@ interface IPixiAppConfigs {
 	height?: number;
 	backgroundColor?: number;
 	autoResize?: boolean;
+	antialias?: boolean;
 }
 
 export default class PixiApp {
