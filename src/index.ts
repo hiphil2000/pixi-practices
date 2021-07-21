@@ -9,18 +9,5 @@ const CANVAS_ID = "main-canvas";
 		width: 256, height: 256
 	}).AppendView(document.body as HTMLElement);
 
-	app.AddObject(new PolygonObject("test", {
-		points: [0, 0, 10, 0, 10, 10, 0, 10]
-	}));
-
-	app.app.view.addEventListener("mousemove", function(e: MouseEvent) {
-		const object = app.GetObject("test");
-		if (object === undefined)
-			return;
-
-		object.config.x = e.offsetX;
-		object.config.y = e.offsetY;
-
-		app.Draw();
-	})
+	app.NewObject("test", { points: [0, 0, 50, 0, 50, 50, 0, 50] })
 })();

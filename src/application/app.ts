@@ -1,5 +1,5 @@
-import { Application, Graphics, utils } from "pixi.js"
-import PolygonObject from "./object";
+import { Application, Graphics, Renderer, utils } from "pixi.js"
+import PolygonObject, { IPolygonObjectConfig } from "./object";
 
 interface IPixiAppConfigs {
 	width?: number;
@@ -12,7 +12,6 @@ export default class PixiApp {
 	public readonly app: Application;
 	
 	private _type: string;
-	private _g: Graphics;
 	private _objects: Array<PolygonObject> = [];
 
 	constructor(configs: IPixiAppConfigs) {
@@ -25,9 +24,6 @@ export default class PixiApp {
 			...configs
 		});
 		
-		this._g = new Graphics();
-		this.app.stage.addChild(this._g);
-
 		return this;
 	}
 
@@ -37,8 +33,14 @@ export default class PixiApp {
 		return this;
 	}
 
+	public NewObject(id: string, config: IPolygonObjectConfig) {
+		this.AddObject(new PolygonObject(id, config, this.app.renderer as Renderer));
+	}
+
 	public AddObject(object: PolygonObject) {
 		this._objects.push(object);
+		this.app.stage.addChild(object.sprite);
+		object.UpdateSprite();
 	}
 
 	public GetObject(key: string): PolygonObject | undefined {
@@ -46,9 +48,8 @@ export default class PixiApp {
 	}
 
 	public Draw() {
-		this._g.clear();
 		this._objects.forEach(o => {
-			o.Draw(this._g);
+			o.UpdateSprite();
 		});
 	}
 }
