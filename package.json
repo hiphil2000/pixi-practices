@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"start": "webpack --config ./webpack/webpack.config.js --mode=development",
+		"start": "webpack --config ./webpack/webpack.config.js --mode=development --watch",
 		"build": "webpack --config ./webpack/webpack.config.js --mode=production"
 	},
 	"keywords": [],
