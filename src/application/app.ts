@@ -1,7 +1,8 @@
 import { Viewport } from "pixi-viewport";
 import { AbstractRenderer, Application, autoDetectRenderer, Container, Renderer, utils } from "pixi.js"
 import { SmoothGraphics as Graphics } from "@pixi/graphics-smooth"
-import PolygonObject, { IPolygonObjectConfig } from "./object";
+import PolygonObject, { IPolygonObjectConfig } from "../objects/polygon";
+import BaseObject from "../objects/object";
 
 interface IAppConfigs {
 	viewport?: {
@@ -38,7 +39,7 @@ export default class PixiApp {
 		return this._viewport;
 	}
 
-	private _objects: Array<PolygonObject> = [];
+	private _objects: Array<BaseObject> = [];
 
 	private constructor(appConfigs: IAppConfigs, rendererConfigs: IRendererConfigs) {
 		this._appConfigs = appConfigs;
@@ -100,6 +101,9 @@ export default class PixiApp {
 			}
 			if (vpConfigs.zoom) {
 				viewport.wheel();
+				viewport.on("zoomed-end", e => {
+					this._objects.forEach(x => x.UpdateSprite());
+				})
 			}
 			const line = viewport.addChild(new Graphics())
 			line.lineStyle(10, 0xff0000).drawRect(0, 0, viewport.worldWidth, viewport.worldHeight)
@@ -122,15 +126,15 @@ export default class PixiApp {
 	 * @param id Object ID
 	 * @param config Object Cofigs
 	 */
-	public NewObject(id: string, config: IPolygonObjectConfig) {
-		this.AddObject(new PolygonObject(id, config));
+	public NewObject(config: IPolygonObjectConfig) {
+		this.AddObject(new PolygonObject(config));
 	}
 
 	/**
 	 * Object를 추가합니다.
 	 * @param object 추가할 Object
 	 */
-	public AddObject(object: PolygonObject) {
+	public AddObject(object: BaseObject) {
 		this._objects.push(object);
 		
 		// viewport가 있으면 viewport에 추가합니다.
@@ -152,7 +156,7 @@ export default class PixiApp {
 	}
 
 	// 오브젝트를 찾아서 반환합니다.
-	public GetObject(key: string): PolygonObject | undefined {
+	public GetObject(key: string): BaseObject | undefined {
 		return this._objects.find(o => o.id === key);
 	}
 
@@ -165,6 +169,7 @@ export default class PixiApp {
 
 	// renderer를 resize합니다.
 	public Resize(width: number = window.innerWidth, height: number = window.innerHeight) {
+		this._viewport?.resize(width, height);
 		this.app.renderer.resize(width, height);
 	}
 }

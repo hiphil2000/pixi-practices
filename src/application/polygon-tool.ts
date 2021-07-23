@@ -1,6 +1,9 @@
-import { InteractionEvent, Point } from "pixi.js";
+import { Circle, Container, InteractionEvent, Point } from "pixi.js";
 import PixiApp from "./app";
-import PloygonObject from "./object";
+import PloygonObject, { IPolygonObjectConfig } from "../objects/polygon";
+import CircleObject, { ICircleObjectConfig } from "../objects/circle";
+import { Guid } from "guid-typescript";
+import LineObject, { ILineObjectConfig } from "../objects/line";
 
 const DRAWING_CLASS = "polygon-tool__working";
 
@@ -8,30 +11,105 @@ export default class PolygonTool {
 	private _app: PixiApp;
 
 	private _isWorking: boolean = false;
-	private _points: Array<number>;
-	private _anchorPoint: Point | null;
+
+	private _drawingStage: Container;
+	private _points: Array<CircleObject>;
+	private _lines: Array<LineObject>;
 	private _object: PloygonObject | null;
+	
+	private _cursorPoint: Point | null;
 
 	constructor() {
 		this._app = PixiApp.GetInstance();
+
+		// reset variables
 		this._points = [];
+		this._lines = [];
 		this._object = null;
-		this._anchorPoint = null;
-		this._app.viewport!.on("mousedown", e => this.HandlePointClick(e));
+		this._cursorPoint = null;
+
+		// create drawing stage
+		this._drawingStage = this.InitStage();
+
+		// set event
+		this._app.viewport!
+			.on("mousedown", e => this.HandlePointClick(e))
+			.on("mousemove", e => this.HandleMouseMove(e));
+	}
+
+	private InitStage() {
+		const stage = new Container();
+		stage.width = this._app.viewport!.width;
+		stage.height = this._app.viewport!.height;
+
+		this._app.AddChild(stage);
+
+		return stage;
+	}
+
+	private ClearStage() {
+		this._drawingStage.children.forEach(c => c.destroy());
+		this._points = [];
+		this._lines = [];
+	}
+
+	private AddPoint() {
+		if (this._cursorPoint === null)
+			return;
+
+		const circlePoint = new CircleObject({
+			radius: 5,
+			x: this._cursorPoint.x,
+			y: this._cursorPoint.y
+		});
+		this._points.push(circlePoint);
+		this._app.AddObject(circlePoint);
+
+		console.log(this._cursorPoint);
+	}
+
+	private UpdateLastLine() {
+		if (this._lines.length === 0) {
+			return;
+		}
+
+		const last = this._lines[this._lines.length - 1];
+		(last.config as ILineObjectConfig).lineTo = this._cursorPoint!;
+		last.UpdateSprite();
+	}
+
+	private AddLine(from: Point, to: Point) {
+		const lineObject = new LineObject({
+			lineFrom: from,
+			lineTo: to
+		});
+
+		this._lines.push(lineObject);
+		this._app.AddObject(lineObject);
+	}
+
+	private GetPointsAsList(): Array<number> {
+		const result: Array<number> = [];
+		this._points.forEach(p => {
+			result.push(p.sprite.x, p.sprite.y);
+		});
+
+		return result;
 	}
 
 	public BeginDraw() {
-		this._points = [];
+		this.ClearStage();
 		this.UpdateState(true);
-		this._object = new PloygonObject(Math.random().toString(), {
-			points: this._points
+		this._object = new PloygonObject({
+			id: Guid.create().toString(),
+			points: this.GetPointsAsList()
 		});
-		this._app.AddObject(this._object);
 	}
 	
-	public EndDraw() {
-		console.log(this._points);
+	public EndDraw(): PloygonObject | null {
 		this.UpdateState(false);
+		console.log(this._object);
+		return this._object;
 	}
 
 	private UpdateState(isWorking: boolean) {
@@ -48,53 +126,46 @@ export default class PolygonTool {
 		this._app.app.view.classList.toggle(DRAWING_CLASS, this._isWorking);
 	}
 
-	private UpdatePolygon() {
-		this._object!.sprite.x = this._anchorPoint!.x;
-		this._object!.sprite.y = this._anchorPoint!.y;
-		this._object?.UpdateSprite();
-	}
-
-	private UpdateAnchor(newPoint: Point) {
-		const anchor = this._anchorPoint as Point;
-
-		const xDiff = newPoint.x - anchor.x;
-		const yDiff = newPoint.y - anchor.y;
-
-		if (xDiff > 0 && yDiff > 0)
-			return;
-
-		this._points.forEach((val, idx) => {
-			if (idx % 2 === 0 && xDiff < 0) {
-				this._points[idx] += Math.abs(xDiff);
-			} else if (idx % 2 === 1 && yDiff < 0) {
-				this._points[idx] += Math.abs(yDiff);
-			}
-		})
-
-		this._anchorPoint = new Point(
-			xDiff < 0 ? newPoint.x : anchor.x,
-			yDiff < 0 ? newPoint.y : anchor.y
-		);
-
-		console.log(this._anchorPoint);
+	private GetPointPosition(point: CircleObject) {
+		const config = point.config as ICircleObjectConfig;
+		return new Point(config.x, config.y);
 	}
 
 	private HandlePointClick(e: InteractionEvent) {
-		if (this._isWorking === false)
+		if (this._isWorking === false || this._cursorPoint === null)
 			return;
 
 		const position = e.data.getLocalPosition(this._app.viewport!);
 		const point = new Point(position.x, position.y);
 
-		if (this._anchorPoint === null) {
-			this._anchorPoint = point;
-		}
-		
-		this._points.push(point.x - this._anchorPoint.x, point.y - this._anchorPoint.y);
-		
-		this.UpdateAnchor(point);
-		this.UpdatePolygon();
+		this.AddPoint();
+		this.UpdateLastLine();
+		this.AddLine(this._cursorPoint, this._cursorPoint);
 
-		console.log(this._object?.configs.points);
+		if (this._points.length > 2) {
+			const first = this.GetPointPosition(this._points[0]);
+			const last = this.GetPointPosition(this._points[this._points.length - 1]);
+			
+			if (first.equals(last))
+				this.EndDraw();
+		}
+	}
+
+	private HandleMouseMove(e: InteractionEvent) {
+		if (this._isWorking === false)
+			return;
+
+		const position = e.data.getLocalPosition(this._app.viewport!);
+		let point = new Point(position.x, position.y);
+
+		if (this._points.length > 0) {
+			const fristPoint = this._points[0];
+			if (new Circle(fristPoint.config.x, fristPoint.config.y, 5).contains(point.x, point.y)) {
+				point = new Point(fristPoint.config.x, fristPoint.config.y);
+			}
+		}
+
+		this._cursorPoint = point;
+		this.UpdateLastLine();
 	}
 }

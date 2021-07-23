@@ -19,6 +19,7 @@
 	},
 	"dependencies": {
 		"@pixi/graphics-smooth": "0.0.13",
+		"guid-typescript": "1.0.9",
 		"pixi-viewport": "4.32.0",
 		"pixi.js": "6.0.4"
 	}

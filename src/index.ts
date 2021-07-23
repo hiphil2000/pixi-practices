@@ -20,7 +20,8 @@ const STAR = [ 80, 0, 100, 50, 160, 55, 115, 95, 130, 150, 80, 120, 30, 150, 45,
 	}).AppendView(document.body as HTMLElement);
 
 	for(let i = 0; i < 5; i++) {
-		app.NewObject(`test_${i}`, {
+		app.NewObject({
+			id: `test_${i}`,
 			points: STAR,
 			x: Math.random() * 1000 % window.innerWidth,
 			y: Math.random() * 1000 % window.innerHeight,
@@ -34,4 +35,4 @@ const STAR = [ 80, 0, 100, 50, 160, 55, 115, 95, 130, 150, 80, 120, 30, 150, 45,
 })();
 
 (window as any).PixiApp = PixiApp;
-(window as any).PolygonTool = new PolygonTool();
+new PolygonTool().BeginDraw();
