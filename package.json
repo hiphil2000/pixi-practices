@@ -18,6 +18,8 @@
 		"webpack-cli": "4.7.2"
 	},
 	"dependencies": {
+		"@pixi/graphics-smooth": "0.0.13",
+		"pixi-viewport": "4.32.0",
 		"pixi.js": "6.0.4"
 	}
 }

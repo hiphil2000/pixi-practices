@@ -1,5 +1,6 @@
-import { throws } from "assert/strict";
-import { Graphics, InteractionData, InteractionEvent, IPointData, Point, Polygon, Renderer, Sprite } from "pixi.js";
+import { InteractionData, InteractionEvent, IPointData, Point, Polygon, Renderer, RenderTexture, Sprite } from "pixi.js";
+import { SmoothGraphics as Graphics } from "@pixi/graphics-smooth";
+import PixiApp from "./app";
 
 export interface IPolygonObjectConfig {
 	points: Array<number>;
@@ -23,6 +24,7 @@ export default class PloygonObject {
 	public readonly id: string;	// ID
 	public readonly configs: IPolygonObjectConfig;	// 설정 값
 
+	private _app: PixiApp;
 	// Sprite 생성을 위한 Renderer
 	private _renderer: Renderer;
 	// Sprite의 Graphic
@@ -35,10 +37,11 @@ export default class PloygonObject {
 	
 	public readonly sprite: Sprite;
 
-	constructor(id: string, configs: IPolygonObjectConfig, renderer: Renderer) {
+	constructor(id: string, configs: IPolygonObjectConfig) {
 		this.id = id;
 		this.configs = this.ResolveDefaults(configs);
-		this._renderer = renderer;
+		this._app = PixiApp.GetInstance();
+		this._renderer = this._app.app.renderer as Renderer;
 		this._g = new Graphics();
 		this.sprite = this.InitSprite();
 
@@ -63,33 +66,40 @@ export default class PloygonObject {
 	private InitSprite(): Sprite {
 		const sprite = new Sprite();
 
+		// configs
 		sprite.interactive = true;
+		if (this.configs.x)
+			sprite.x = this.configs.x;
+		if (this.configs.y)
+			sprite.y = this.configs.y;
+		sprite.hitArea = new Polygon(this.configs.points);
 
+		// events
 		sprite
 			.on("mousedown", e => this.HandleDragStart(e))
 			.on("mouseup", e => this.HandleDragEnd())
 			.on("mouseupoutside", e => this.HandleDragEnd())
-			.on("mousemove", e => this.HandleDragging())
-
-		sprite.hitArea = new Polygon(this.configs.points);
+			.on("mousemove", e => this.HandleDragging());
 
 		return sprite;
+	}
+
+	private generateTexture(): RenderTexture {
+		this._g.clear();
+		this._g.beginFill(this.configs.backgroundColor, 1.0, true);
+		this._g.lineStyle(1, this.configs.backgroundColor);
+		this._g.drawPolygon(this.configs.points);
+		this._g.endFill();
+
+		return this._renderer.generateTexture(this._g);
 	}
 
 	/**
 	 * Sprite를 업데이트합니다.
 	 */
-	public UpdateSprite(draw: boolean = true) {	
-		if (draw) {
-			// graphic을 업데이트합니다.
-			this._g.clear();
-			this._g.beginFill(this.configs.backgroundColor);
-			this._g.drawPolygon(this.configs.points);
-			this._g.endFill();
-		}
-
+	public UpdateSprite() {	
 		// texture를 적용합니다.
-		this.sprite.texture = this._renderer.generateTexture(this._g);
+		this.sprite.texture = this.generateTexture();
 	}
 	
 	/**
@@ -97,6 +107,9 @@ export default class PloygonObject {
 	 * @param event Drag Event
 	 */
 	private HandleDragStart(event: InteractionEvent) {
+		// stop viewport dragging
+		this._app.viewport?.plugins.pause("drag");
+
 		// Sprite offset 설정
 		const position = event.data.getLocalPosition(this.sprite.parent);
 		this._offset = {
@@ -128,15 +141,15 @@ export default class PloygonObject {
 		// 스프라이트 위치 업데이트
 		this.sprite.x = position.x + this._offset!.x;
 		this.sprite.y = position.y + this._offset!.y;
-
-		// 스프라이트 업데이트
-		this.UpdateSprite(false);
 	}
 
 	/**
 	 * 드래그 종료 이벤트 핸들러
 	 */
 	private HandleDragEnd() {
+		// resume viewport dragging
+		this._app.viewport?.plugins.resume("drag");
+
 		this._dragData = null;
 		this._dragging = false;
 		this._g.alpha = 1;
