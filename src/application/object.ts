@@ -100,6 +100,7 @@ export default class PloygonObject {
 	public UpdateSprite() {	
 		// texture를 적용합니다.
 		this.sprite.texture = this.generateTexture();
+		this.sprite.hitArea = new Polygon(this.configs.points);
 	}
 	
 	/**

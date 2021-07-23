@@ -61,6 +61,12 @@ export default class PixiApp {
 		return this;
 	}
 
+	/**
+	 * 인스턴스를 반환합니다. 
+	 * 없다면 파라미터 값으로 초기화하고 반환합니다.
+	 * @param appConfigs PixiApp configs
+	 * @param rendererConfigs Renderer configs
+	 */
 	public static GetInstance(appConfigs?: IAppConfigs, rendererConfigs?: IRendererConfigs): PixiApp {
 		if (PixiApp._instance === null) {
 			if (appConfigs === undefined || rendererConfigs === undefined) {
@@ -135,6 +141,14 @@ export default class PixiApp {
 		}
 
 		object.UpdateSprite();
+	}
+
+	/**
+	 * Stage에 child를 추가합니다.
+	 * @param child 
+	 */
+	public AddChild(child: any) {
+		this._stage.addChild(child);
 	}
 
 	// 오브젝트를 찾아서 반환합니다.
