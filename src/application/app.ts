@@ -152,7 +152,7 @@ export default class PixiApp {
 	 * @param child 
 	 */
 	public AddChild(child: any) {
-		this._stage.addChild(child);
+		this._viewport?.addChild(child);
 	}
 
 	// 오브젝트를 찾아서 반환합니다.

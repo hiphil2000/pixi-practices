@@ -14,10 +14,12 @@
 			cursor: crosshair !important;
 		}
 
-		#addObject {
+		#toolbox {
 			position: absolute;
-			right: 32px;
-			top: 32px;
+			display: flex;
+			width: 100%;
+			left: 0;
+			top: 0;
 		}
 
 		.working {
@@ -26,7 +28,9 @@
 	</style>
 </head>
 <body>
-	<button id="addObject">오브젝트 생성</button>
+	<div id="toolbox">
+		<button id="addObject">오브젝트 생성</button>
+	</div>
 	<script src="../dist/bundle.js"></script>
 	<script>
 		var button = document.querySelector("#addObject");

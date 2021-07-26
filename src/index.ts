@@ -1,5 +1,7 @@
 import PixiApp from "./application/app";
 import PolygonTool from "./application/polygon-tool";
+import logo from "./images/github.svg";
+import { SVG } from "pixi-svg";
 
 const STAR = [ 80, 0, 100, 50, 160, 55, 115, 95, 130, 150, 80, 120, 30, 150, 45, 95, 0, 55, 60, 50 ];
 
@@ -28,6 +30,14 @@ const STAR = [ 80, 0, 100, 50, 160, 55, 115, 95, 130, 150, 80, 120, 30, 150, 45,
 			backgroundColor: Math.random() * (0xFFFFFF - 0x000000) + 0x000000
 		});
 	}
+
+	const xhr = new XMLHttpRequest();
+	xhr.addEventListener("load", function() {
+		const svg = new SVG(xhr.responseText.match(/(<svg.*\/>)/)![1]);
+		app.AddChild(svg);
+	})
+	xhr.open("get", logo);
+	xhr.send();
 
 	window.addEventListener("resize", function() {
 		app.Resize();
