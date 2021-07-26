@@ -35,4 +35,4 @@ const STAR = [ 80, 0, 100, 50, 160, 55, 115, 95, 130, 150, 80, 120, 30, 150, 45,
 })();
 
 (window as any).PixiApp = PixiApp;
-new PolygonTool().BeginDraw();
+(window as any).PolygonTool = new PolygonTool();

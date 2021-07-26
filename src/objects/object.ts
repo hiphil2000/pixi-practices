@@ -143,4 +143,13 @@ export default abstract class BaseObject {
 		this._g.alpha = 1;
 		this.UpdateSprite();
 	}
+
+	/**
+	 * 오브젝트 삭제
+	 */
+	public destroy() {
+		this._app.RemoveObject(this);
+		this._sprite.destroy();
+		this._g.destroy();
+	}
 }

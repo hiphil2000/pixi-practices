@@ -13,9 +13,32 @@
 		canvas.polygon-tool__working {
 			cursor: crosshair !important;
 		}
+
+		#addObject {
+			position: absolute;
+			right: 32px;
+			top: 32px;
+		}
+
+		.working {
+			display: none;
+		}
 	</style>
 </head>
 <body>
+	<button id="addObject">오브젝트 생성</button>
 	<script src="../dist/bundle.js"></script>
+	<script>
+		var button = document.querySelector("#addObject");
+
+		button.addEventListener("click", function(e) {
+			if (window.PolygonTool._isWorking) {
+				alert("이미 작업중이에요");
+				return;
+			}
+
+			window.PolygonTool.BeginDraw();
+		})
+	</script>
 </body>
 </html>

@@ -123,18 +123,22 @@ export default class PolygonTool {
 	public BeginDraw() {
 		this.ClearStage();
 		this.UpdateState(true);
-		this._object = new PloygonObject({
-			id: Guid.create().toString(),
-			points: this.GetPointsAsList()
-		});
 	}
 	
 	/**
 	 * 작업을 마치고 오브젝트를 반환합니다.
 	 */
 	public EndDraw(): PloygonObject | null {
+		const position = this.GetObjectPosition();
+
+		this._app.NewObject({
+			points: this.GetResultPoints(),
+			x: position.x,
+			y: position.y
+		});
+		
 		this.UpdateState(false);
-		console.log(this._object);
+
 		return this._object;
 	}
 
@@ -151,6 +155,8 @@ export default class PolygonTool {
 		}
 		else {
 			viewport.plugins.resume("drag");
+			this._points.forEach(x => x.destroy());
+			this._lines.forEach(x => x.destroy());
 		}
 
 		this._app.app.view.classList.toggle(DRAWING_CLASS, this._isWorking);
@@ -159,12 +165,23 @@ export default class PolygonTool {
 	//#endregion
 
 	/**
+	 * 오브젝트의 위치를 찾습니다.
+	 */
+	private GetObjectPosition() {
+		const x = Math.min(...this._points.map(p => p.sprite.x));
+		const y = Math.min(...this._points.map(p => p.sprite.y));
+
+		return new Point(x, y);
+	}
+
+	/**
 	 * 점들을 하나의 리스트로 반환합니다.
 	 */
-	private GetPointsAsList(): Array<number> {
+	private GetResultPoints(): Array<number> {
+		const position = this.GetObjectPosition();
 		const result: Array<number> = [];
 		this._points.forEach(p => {
-			result.push(p.sprite.x, p.sprite.y);
+			result.push(p.sprite.x - position.x, p.sprite.y - position.y);
 		});
 
 		return result;

@@ -160,6 +160,17 @@ export default class PixiApp {
 		return this._objects.find(o => o.id === key);
 	}
 
+	// 오브젝트 리스트를 반환합니다.
+	public GetObjects(): Array<BaseObject> {
+		return this._objects;
+	}
+
+	// 오브젝트를 찾아서 삭제합니다.
+	public RemoveObject(object: BaseObject) {
+		const idx = this._objects.findIndex(x => x === object);
+		this._objects.splice(idx, 1);
+	}
+
 	// app을 draw합니다.
 	public Draw() {
 		this._objects.forEach(o => {
