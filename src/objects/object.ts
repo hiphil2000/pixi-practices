@@ -57,6 +57,9 @@ export default abstract class BaseObject {
 		return config;
 	}
 
+	/**
+	 * 오브젝트의 스프라이트를 초기화합니다.
+	 */
 	private InitSprite(): Sprite {
 		const sprite = new Sprite();
 
@@ -82,6 +85,9 @@ export default abstract class BaseObject {
 
 	protected abstract GetHitArea(): IHitArea;
 
+	/**
+	 * 스프라이트의 텍스쳐를 업데이트합니다.
+	 */
 	public UpdateSprite() {
 		this._sprite.texture = this.GetTexture();
 		this._sprite.hitArea = this.GetHitArea();
