@@ -4,8 +4,45 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>JS GRAPHIC TEST</title>
+	<style>
+		html, body {
+			margin: 0;
+			overflow: hidden;
+		}
+
+		canvas.polygon-tool__working {
+			cursor: crosshair !important;
+		}
+
+		#toolbox {
+			position: absolute;
+			display: flex;
+			width: 100%;
+			left: 0;
+			top: 0;
+		}
+
+		.working {
+			display: none;
+		}
+	</style>
 </head>
 <body>
+	<div id="toolbox">
+		<button id="addObject">오브젝트 생성</button>
+	</div>
 	<script src="../dist/bundle.js"></script>
+	<script>
+		var button = document.querySelector("#addObject");
+
+		button.addEventListener("click", function(e) {
+			if (window.PolygonTool._isWorking) {
+				alert("이미 작업중이에요");
+				return;
+			}
+
+			window.PolygonTool.BeginDraw();
+		})
+	</script>
 </body>
 </html>
