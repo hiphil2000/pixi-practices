@@ -110,7 +110,12 @@ export default class PolygonTool {
 	private AddLine(from: Point, to: Point) {
 		const lineObject = new LineObject({
 			lineFrom: from,
-			lineTo: to
+			lineTo: to,
+			label: {
+				text: "test",
+				fontSize: 16,
+				color: 0xffffff
+			}
 		});
 
 		this._lines.push(lineObject);
