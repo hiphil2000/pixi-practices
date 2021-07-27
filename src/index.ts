@@ -3,6 +3,7 @@ import PolygonTool from "./application/polygon-tool";
 import logo from "./images/github.svg";
 import { SVG } from "pixi-svg";
 import PloygonObject from "./objects/polygon";
+import { Text } from "pixi.js";
 
 const STAR = [ 80, 0, 100, 50, 160, 55, 115, 95, 130, 150, 80, 120, 30, 150, 45, 95, 0, 55, 60, 50 ];
 const BOX = [0, 0, 25, 0, 25, 25, 0, 25];
@@ -31,15 +32,13 @@ const BOX = [0, 0, 25, 0, 25, 25, 0, 25];
 		backgroundColor: Math.random() * (0xFFFFFF - 0x000000) + 0x000000
 	});
 
-	for (let i = 0; i < 10; i++) {
-		const obj = new PloygonObject({
-			points: BOX,
-			x: Math.random() * 100,
-			y: Math.random() * 100,
-			backgroundColor: Math.random() * (0xFFFFFF - 0x000000) + 0x000000
-		});
-		obj.UpdateSprite();
-		app.GetObject("testobj")?.sprite.addChild(obj.sprite);
+	for (let i = 0; i < 1000; i++) {
+		const obj = new Text(i.toString(), {
+			fill: 0xffffff,
+			fontSize: 8
+		})
+		obj.position.set(Math.floor(i / 100) * (8 * i.toString().length), (i % 100) * 10);
+		app.GetObject("testobj")?.sprite.addChild(obj);
 	}
 
 	const xhr = new XMLHttpRequest();

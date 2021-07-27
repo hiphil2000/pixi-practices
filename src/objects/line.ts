@@ -27,6 +27,7 @@ export default class LineObject extends BaseObject {
 			align: "center",
 			fill: config.label.color || 0x000000
 		});
+		this._text.roundPixels = true;
 		this._sprite.addChild(this._text);
 	}
 

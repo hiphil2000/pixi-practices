@@ -100,9 +100,12 @@ export default class PixiApp {
 				viewport.decelerate();
 			}
 			if (vpConfigs.zoom) {
-				viewport.wheel();
+				viewport.wheel({
+					percent: 0.25
+				});
 				viewport.on("zoomed-end", e => {
 					this._objects.forEach(x => x.UpdateSprite());
+					console.log(`zoom scale: ${e.scaled.toFixed(2)}`);
 				})
 			}
 			const line = viewport.addChild(new Graphics())
